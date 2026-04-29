@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html,
+  body {
+    height: 100%;
+    background-color: #0c0e0d;
+    color: #e4e8e3;
+    font-family: 'Geist', sans-serif;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #191c18;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #272b26;
+    border-radius: 2px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #505850;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-gold text-bg hover:bg-gold-hover transition-colors cursor-pointer border-0 outline-none;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-muted hover:text-text hover:bg-s3 transition-colors cursor-pointer border border-border rounded;
+  }
+  .btn-danger {
+    @apply inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-red hover:bg-red hover:text-white transition-colors cursor-pointer border border-red rounded;
+  }
+  .input {
+    @apply w-full px-3 py-2 text-sm bg-s2 border border-border text-text placeholder:text-muted focus:outline-none focus:border-gold transition-colors;
+  }
+  .label {
+    @apply block text-xs text-muted mb-1;
+  }
+  .card {
+    @apply bg-s2 border border-border p-4;
+  }
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full;
+  }
+}
