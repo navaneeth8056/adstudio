@@ -105,18 +105,18 @@ export async function resolvePlaceFromUrl(mapsUrl: string): Promise<PlaceDetails
   }
 }
 
-export async function reverseGeocodePlaceId(lat: number, lng: number): Promise<string> {
+export async function reverseGeocodePlaceId(lat: number, lng: number): Promise<string | undefined> {
   const url = `${MAPS_BASE}/geocode/json?latlng=${lat},${lng}&key=${key()}`
   const data = await fetch(url).then((r) => r.json())
   if (data.error_message) throw new Error(data.error_message)
-  return data.results?.[0]?.place_id
+  return data.results?.[0]?.place_id as string | undefined
 }
 
-export async function searchPlaceId(query: string): Promise<string> {
+export async function searchPlaceId(query: string): Promise<string | undefined> {
   const url = `${MAPS_BASE}/place/findplacefromtext/json?input=${encodeURIComponent(query)}&inputtype=textquery&fields=place_id&key=${key()}`
   const data = await fetch(url).then((r) => r.json())
   if (data.error_message) throw new Error(data.error_message)
-  return data.candidates?.[0]?.place_id
+  return data.candidates?.[0]?.place_id as string | undefined
 }
 
 export async function getPlaceDetails(placeId: string): Promise<PlaceDetails> {
