@@ -48,7 +48,7 @@ export async function GET() {
     return acc
   }, {} as Record<string, { client_id: string; client_name: string; total_cost: number }>)
 
-  const by_client = Object.values(clientGroups).map((g) => {
+  const by_client = (Object.values(clientGroups) as { client_id: string; client_name: string; total_cost: number }[]).map((g) => {
     const clientPosts = (posts ?? []).filter((p) => p.client_id === g.client_id)
     const published_posts = clientPosts.filter((p) => p.status === 'published').length
     return {
