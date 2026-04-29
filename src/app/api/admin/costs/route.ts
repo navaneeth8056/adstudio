@@ -38,7 +38,7 @@ export async function GET() {
     acc[key].count += 1
     return acc
   }, {} as Record<string, { service: string; total: number; count: number }>)
-  const by_service = Object.values(serviceGroups).sort((a, b) => b.total - a.total)
+  const by_service = (Object.values(serviceGroups) as { service: string; total: number; count: number }[]).sort((a, b) => b.total - a.total)
 
   // By client
   const clientGroups = costs.reduce((acc, c) => {
