@@ -28,7 +28,7 @@ export default function EventsPage() {
   const [events, setEvents]                     = useState<AurovilleEvent[]>([])
   const [clients, setClients]                   = useState<Client[]>([])
   const [selectedClient, setSelectedClient]     = useState<Client | null>(null)
-  const [activeCategories, setActiveCategories] = useState<Set<EventCategory>>(new Set())
+  const [selectedCategory, setSelectedCategory] = useState<EventCategory | 'all'>('all')
   const [radius, setRadius]                     = useState(5)
   const [loading, setLoading]                   = useState(true)
   const [uploading, setUploading]               = useState(false)
@@ -143,21 +143,13 @@ export default function EventsPage() {
   })
 
   const filtered = enrichedEvents.filter((e) => {
-    if (activeCategories.size > 0 && !activeCategories.has(e.category)) return false
+    if (selectedCategory !== 'all' && e.category !== selectedCategory) return false
     if (selectedClient && e.distances) {
       const d = e.distances[selectedClient.id]
       if (d !== undefined && d > radius) return false
     }
     return true
   })
-
-  function toggleCategory(cat: EventCategory) {
-    setActiveCategories((s) => {
-      const next = new Set(s)
-      next.has(cat) ? next.delete(cat) : next.add(cat)
-      return next
-    })
-  }
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -221,21 +213,17 @@ export default function EventsPage() {
 
         <div className="h-4 w-px bg-border" />
 
-        {/* Category filters */}
-        <div className="flex flex-wrap gap-1">
-          {CATEGORIES.map(({ id, label, color }) => (
-            <button
-              key={id}
-              onClick={() => toggleCategory(id)}
-              className={cn(
-                'px-2 py-0.5 text-xs rounded border transition-colors',
-                activeCategories.has(id) ? `border-current ${color}` : 'border-border text-muted hover:border-border hover:text-text'
-              )}
-            >
-              {label}
-            </button>
+        {/* Category filter */}
+        <select
+          className="input w-44 text-xs py-1"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value as EventCategory | 'all')}
+        >
+          <option value="all">All categories</option>
+          {CATEGORIES.map(({ id, label }) => (
+            <option key={id} value={id}>{label}</option>
           ))}
-        </div>
+        </select>
 
         {events.length > 0 && (
           <>

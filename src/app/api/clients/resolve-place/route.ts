@@ -117,7 +117,11 @@ Respond ONLY with valid JSON in this exact format:
   const content = message.content[0]
   if (content.type !== 'text') throw new Error('No response from Claude')
 
-  const jsonMatch = content.text.match(/\{[\s\S]*\}/)
+  let rawText = content.text.trim()
+  const fenceMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/)
+  if (fenceMatch) rawText = fenceMatch[1].trim()
+
+  const jsonMatch = rawText.match(/\{[\s\S]*\}/)
   if (!jsonMatch) throw new Error('Could not parse Claude response')
 
   return JSON.parse(jsonMatch[0]) as AiProfile

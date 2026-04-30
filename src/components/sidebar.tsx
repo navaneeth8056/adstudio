@@ -6,12 +6,14 @@ import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/cn'
 
 const NAV_ITEMS = [
-  { href: '/clients', label: 'Clients', icon: '◈' },
-  { href: '/photos', label: 'Photo Repo', icon: '⊞' },
-  { href: '/events', label: 'Events', icon: '◎' },
-  { href: '/studio', label: 'Post Studio', icon: '✦' },
-  { href: '/published', label: 'Waiting List', icon: '◉' },
-  { href: '/admin', label: 'Admin', icon: '⬡' },
+  { href: '/clients',      label: 'Clients',      icon: '◈' },
+  { href: '/photos',       label: 'Photo Repo',   icon: '⊞' },
+  { href: '/events',       label: 'Events',        icon: '◎' },
+  { href: '/studio',       label: 'Post Studio',  icon: '✦' },
+  { href: '/draft',        label: 'Draft',         icon: '◉' },
+  { href: '/waiting-list', label: 'Waiting List', icon: '◷' },
+  { href: '/approved',     label: 'Approved',      icon: '✓' },
+  { href: '/admin',        label: 'Admin',         icon: '⬡' },
 ] as const
 
 interface SidebarProps {

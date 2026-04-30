@@ -16,6 +16,7 @@ export interface Client {
   amenities: string[]
   usp: string
   custom_requirements?: string
+  phone?: string
   instagram_handle?: string
   instagram_page_id?: string
   instagram_token?: string
@@ -93,7 +94,7 @@ export interface AurovilleEvent {
 
 // ─── Post ────────────────────────────────────────────────────────────────────
 
-export type PostStatus = 'draft' | 'approved' | 'published'
+export type PostStatus = 'draft' | 'pending_approval' | 'approved' | 'rejected' | 'published'
 
 export interface AdLabels {
   property_name: string

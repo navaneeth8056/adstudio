@@ -52,7 +52,14 @@ Respond with ONLY valid JSON in this exact structure:
     const content = message.content[0]
     if (content.type !== 'text') throw new Error('Unexpected response type')
 
-    const parsed = JSON.parse(content.text)
+    // Strip markdown fences if Claude wrapped the JSON
+    let rawText = content.text.trim()
+    const fenceMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/)
+    if (fenceMatch) rawText = fenceMatch[1].trim()
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) throw new Error('Could not parse JSON from Claude response')
+
+    const parsed = JSON.parse(jsonMatch[0])
     const costUsd = estimateCost(message.usage.input_tokens, message.usage.output_tokens)
 
     const reviewSummary = {
