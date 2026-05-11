@@ -7,6 +7,7 @@ export interface Client {
   property_type: string
   location: string
   google_maps_url?: string
+  google_search_url?: string
   google_place_id?: string
   lat?: number
   lng?: number

@@ -29,7 +29,6 @@ export default function ClientsPage() {
   const [saving, setSaving] = useState(false)
   const [resolvingPlace, setResolvingPlace] = useState(false)
   const [resolveStep, setResolveStep] = useState('')
-  const [generatingReview, setGeneratingReview] = useState(false)
   const [error, setError] = useState('')
   const [amenityInput, setAmenityInput] = useState('')
 
@@ -63,14 +62,24 @@ export default function ClientsPage() {
     setResolveStep('Fetching place details…')
     setError('')
     try {
-      // Show a second step message after a short delay (Claude analysis takes a few seconds)
-      const stepTimer = setTimeout(() => setResolveStep('Analysing with Claude AI…'), 2500)
+      // Step messages that walk through what's happening on the server
+      const t1 = setTimeout(
+        () => setResolveStep(form.google_search_url ? 'Reading reference URL…' : 'Pulling Google reviews…'),
+        1500,
+      )
+      const t2 = setTimeout(() => setResolveStep('Analysing with Claude AI…'), 3000)
+
       const res = await fetch('/api/clients/resolve-place', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ googleMapsUrl: form.google_maps_url }),
+        body: JSON.stringify({
+          googleMapsUrl: form.google_maps_url,
+          googleSearchUrl: form.google_search_url || undefined,
+          clientId: selected?.id,
+        }),
       })
-      clearTimeout(stepTimer)
+      clearTimeout(t1)
+      clearTimeout(t2)
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
 
@@ -91,31 +100,13 @@ export default function ClientsPage() {
         amenities:        data.amenities?.length ? data.amenities : (f.amenities ?? []),
         usp:              data.usp              || f.usp,
         custom_requirements: data.custom_requirements || f.custom_requirements,
+        // Review summary (may be null if there was nothing to summarise — keep existing in that case)
+        review_summary:   data.review_summary   || f.review_summary,
       }))
     } catch (e) {
       setError(String(e))
     } finally {
       setResolvingPlace(false)
-    }
-  }
-
-  async function generateReviewSummary() {
-    if (!form.google_place_id) return
-    setGeneratingReview(true)
-    setError('')
-    try {
-      const res = await fetch('/api/reviews/summarise', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clientId: selected?.id, placeId: form.google_place_id }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      setForm((f) => ({ ...f, review_summary: data }))
-    } catch (e) {
-      setError(String(e))
-    } finally {
-      setGeneratingReview(false)
     }
   }
 
@@ -219,16 +210,31 @@ export default function ClientsPage() {
               </div>
             )}
 
-            {/* Google Maps Auto-fill */}
+            {/* Auto-fill from Google Maps + optional reference URL */}
             <div className="card space-y-3">
-              <p className="text-xs text-muted">Auto-fill from Google Maps</p>
-              <div className="flex gap-2">
-                <input
-                  className="input flex-1"
-                  placeholder="Paste Google Maps URL…"
-                  value={form.google_maps_url || ''}
-                  onChange={(e) => setForm((f) => ({ ...f, google_maps_url: e.target.value }))}
-                />
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted">Auto-fill from Google</p>
+                <p className="text-[10px] text-muted opacity-70">Maps URL + reviews + optional reference URL → one Claude analysis</p>
+              </div>
+
+              <input
+                className="input"
+                placeholder="Paste Google Maps URL…"
+                value={form.google_maps_url || ''}
+                onChange={(e) => setForm((f) => ({ ...f, google_maps_url: e.target.value }))}
+              />
+
+              <input
+                className="input"
+                placeholder="Optional: Google search result, listing, or website URL…"
+                value={form.google_search_url || ''}
+                onChange={(e) => setForm((f) => ({ ...f, google_search_url: e.target.value }))}
+              />
+
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[11px] text-muted opacity-70">
+                  Reviews are pulled and summarised in the same step.
+                </p>
                 <button
                   onClick={resolvePlace}
                   disabled={resolvingPlace || !form.google_maps_url}
@@ -242,6 +248,7 @@ export default function ClientsPage() {
                   ) : 'Auto-fill'}
                 </button>
               </div>
+
               {form.google_place_id && (
                 <p className="text-xs text-green">✓ Place resolved: {form.google_place_id}</p>
               )}
@@ -323,16 +330,11 @@ export default function ClientsPage() {
               </div>
             </div>
 
-            {/* Review Summary */}
-            {form.google_place_id && (
+            {/* Review Summary — populated by Auto-fill */}
+            {form.review_summary && (
               <div className="card space-y-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-muted">Google Review Intelligence</p>
-                  <button onClick={generateReviewSummary} disabled={generatingReview} className="btn-ghost text-xs">
-                    {generatingReview ? <><Spinner className="mr-1" />Analysing…</> : '✦ Generate Review Summary'}
-                  </button>
-                </div>
-                {form.review_summary && <ReviewSummaryDisplay summary={form.review_summary as ReviewSummary} />}
+                <p className="text-xs text-muted">Google Review Intelligence</p>
+                <ReviewSummaryDisplay summary={form.review_summary as ReviewSummary} />
               </div>
             )}
 
